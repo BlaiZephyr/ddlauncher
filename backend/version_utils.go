@@ -107,7 +107,7 @@ func extractArchive(archivePath, destPath string) error {
 	case "windows":
 		cmd = exec.Command("powershell", "-command", "Expand-Archive", "-Path", archivePath, "-DestinationPath", getCurrentDir(), "-Force")
 	case "linux":
-		cmd = exec.Command("tar", "-xvf", archivePath, "-C", versionFolder)
+		cmd = exec.Command("tar", "-xvf", archivePath, "-C", getCurrentDir())
 	default:
 		return fmt.Errorf("unsupported OS")
 	}
