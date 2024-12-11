@@ -13,9 +13,9 @@ func RunGameCommand() error {
 
 	switch runtime.GOOS {
 	case "windows":
-		execPath = filepath.Join("..", "Versions", fmt.Sprintf("DDNet-%s-win64", State.CurrentVersion), GameTitle+".exe")
+		execPath = filepath.Join(State.VersionsDir, fmt.Sprintf("DDNet-%s-win64", State.CurrentVersion), GameTitle+".exe")
 	case "linux":
-		execPath = filepath.Join("..", "Versions", fmt.Sprintf("DDNet-%s-linux_x86_64", State.CurrentVersion), GameTitle)
+		execPath = filepath.Join(State.VersionsDir, fmt.Sprintf("DDNet-%s-linux_x86_64", State.CurrentVersion), GameTitle)
 	default:
 		return fmt.Errorf("unsupported OS")
 	}

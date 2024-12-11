@@ -15,13 +15,8 @@ import (
 )
 
 func getCurrentDir() string {
-	currentDir, err := os.Getwd()
-	if err != nil {
-		_ = fmt.Errorf("damn.. %s", err)
-	}
 
-	versionsDir := filepath.Join(currentDir, "..", "Versions")
-	absolutePath, _ := filepath.Abs(versionsDir)
+	absolutePath, _ := filepath.Abs(State.VersionsDir)
 
 	return absolutePath
 }
@@ -93,13 +88,6 @@ Loop:
 }
 
 func extractArchive(archivePath, destPath string) error {
-	version := extractVersionFromFilename(archivePath)
-
-	versionFolder := filepath.Join(destPath, fmt.Sprintf("DDNet-%s", version))
-	err := os.MkdirAll(versionFolder, 0755)
-	if err != nil {
-		return fmt.Errorf("%v", err)
-	}
 
 	var cmd *exec.Cmd
 
@@ -118,8 +106,8 @@ func extractArchive(archivePath, destPath string) error {
 		return fmt.Errorf("extraction failed: %v - output: %s", err, string(output))
 	}
 
-	if files, err := os.ReadDir(versionFolder); err == nil && len(files) == 0 {
-		err = os.Remove(versionFolder)
+	if files, err := os.ReadDir(State.VersionsDir); err == nil && len(files) == 0 {
+		err = os.Remove(State.VersionsDir)
 		if err != nil {
 			fmt.Printf("%v\n", err)
 		}

@@ -19,6 +19,7 @@ type AppState struct {
 	SelectedVersion string
 	CurrentVersion  string
 	UserDir         string
+	VersionsDir     string
 }
 
 var State AppState
@@ -29,6 +30,15 @@ func InitAppState() {
 		fmt.Printf("home directory be missing yo: %v\n", err)
 		return
 	}
+
+	versionsDir, err := os.Getwd()
+	if err != nil {
+		fmt.Printf("wd directory be missing yo: %v\n", err)
+	} else {
+		versionsDir += "./Versions"
+	}
+
+	State.VersionsDir = versionsDir
 	State.UserDir = homeDir
 
 	//fully unused atm.
