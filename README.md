@@ -1,23 +1,17 @@
-it is what it is, i'm working on it OKAY?!
+# DDNet Client Manager
 
-a lot of planned features, none are optimized
+A Go-based application for managing DDNet clients, allowing users to download, launch, and manage different versions of the DDNet client. 
 
-my first attempt on actual coding in go
+## Planned Features
 
-TODO:
-[x] UI
-[x] Version selection
-[x] Client Downloading
-[x] Client launching
-[ ] strip away the release candidates from github tags
-[ ] make the list not fill up the entire screen
-[ ] Antibot integration for all types of servers (this is a joke, but i do want to provide some sort of moderation integration within here. 
-[ ] provide a Translation GUI, preferrably with deepl
-[ ] Get actually good at UI making
-[ ] step away from fyne, use a different frontend, maybe different language, go isn't GUI'ing the way i expected to GUI
-[ ] Validation of an existing data folder to not bloat up disk space
+### Completed Features
+- [x] **UI** - Basic user interface implemented.
+- [x] **Version selection** - Users can select the version of DDNet they wish to download.
+- [x] **Client Downloading** - The application handles downloading the selected DDNet client version.
+- [x] **Client launching** - The downloaded DDNet client can be launched directly from the application.
 
-
-![image](https://github.com/user-attachments/assets/518af2f4-de83-49d1-8fb9-5e6e145dc95d)
-
-![image](https://github.com/user-attachments/assets/5c6739d7-bea0-44d0-aac1-6a7b3589a3db)
+### Pending Features
+- [ ] **Strip away release candidates from GitHub tags** - Clean up version tags to remove release candidates.
+- [ ] **Improve UI layout** - Make the version list fit within the screen without overwhelming the user.
+- [ ] **Antibot integration** - (This is a joke, but still) Provide some sort of moderation integration, ideally for all types of servers.
+- [ ] **Translation GUI** - Add a translation interface, potentially integrating with Deepl for automatic translations
