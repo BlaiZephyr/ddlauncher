@@ -35,7 +35,7 @@ func InitAppState() {
 	if err != nil {
 		fmt.Printf("wd directory be missing yo: %v\n", err)
 	} else {
-		versionsDir += "./Versions"
+		versionsDir += "/Versions"
 	}
 
 	State.VersionsDir = versionsDir
