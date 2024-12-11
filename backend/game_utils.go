@@ -21,7 +21,7 @@ func RunGameCommand() error {
 	}
 
 	if _, err := os.Stat(execPath); os.IsNotExist(err) {
-		fmt.Errorf("game executable not found: %s", execPath)
+		_ = fmt.Errorf("game executable not found: %s", execPath)
 		_, err := FetchDDNetZip(State.CurrentVersion)
 		if err != nil {
 			return err

@@ -14,15 +14,9 @@ import (
 	"github.com/google/go-github/v39/github"
 )
 
-func getCurrentDir() string {
-
-	absolutePath, _ := filepath.Abs(State.VersionsDir)
-
-	return absolutePath
-}
 func FetchDDNetZip(version string) (bool, error) {
 
-	versionFolder := filepath.Join(getCurrentDir(), "Versions", fmt.Sprintf("DDNet-%s-%s", version, runtime.GOOS))
+	versionFolder := filepath.Join(State.VersionsDir, "Versions", fmt.Sprintf("DDNet-%s-%s", version, runtime.GOOS))
 
 	if _, err := os.Stat(versionFolder); err == nil {
 		executableSuffix := ".exe"
@@ -35,7 +29,7 @@ func FetchDDNetZip(version string) (bool, error) {
 			return false, nil
 		}
 	}
-	versionsDir := filepath.Join(getCurrentDir(), "Versions")
+	versionsDir := filepath.Join(State.VersionsDir, "Versions")
 	if _, err := os.Stat(versionsDir); os.IsNotExist(err) {
 		err := os.MkdirAll(versionsDir, 0755)
 		if err != nil {
@@ -55,7 +49,7 @@ func FetchDDNetZip(version string) (bool, error) {
 	fmt.Printf("Downloading %s\n", downloadURL)
 
 	client := grab.NewClient()
-	req, err := grab.NewRequest(getCurrentDir(), downloadURL)
+	req, err := grab.NewRequest(State.VersionsDir, downloadURL)
 	if err != nil {
 		return false, fmt.Errorf("%v", err)
 	}
@@ -79,7 +73,7 @@ Loop:
 		return false, fmt.Errorf("download failed: %v", err)
 	}
 
-	err = extractArchive(resp.Filename, getCurrentDir())
+	err = extractArchive(resp.Filename)
 	if err != nil {
 		return false, fmt.Errorf("extraction failed: %v", err)
 	}
@@ -87,15 +81,15 @@ Loop:
 	return true, nil
 }
 
-func extractArchive(archivePath, destPath string) error {
+func extractArchive(archivePath string) error {
 
 	var cmd *exec.Cmd
 
 	switch runtime.GOOS {
 	case "windows":
-		cmd = exec.Command("powershell", "-command", "Expand-Archive", "-Path", archivePath, "-DestinationPath", getCurrentDir(), "-Force")
+		cmd = exec.Command("powershell", "-command", "Expand-Archive", "-Path", archivePath, "-DestinationPath", State.VersionsDir, "-Force")
 	case "linux":
-		cmd = exec.Command("tar", "-xvf", archivePath, "-C", getCurrentDir())
+		cmd = exec.Command("tar", "-xvf", archivePath, "-C", State.VersionsDir)
 	default:
 		return fmt.Errorf("unsupported OS")
 	}
@@ -117,15 +111,12 @@ func extractArchive(archivePath, destPath string) error {
 		fmt.Printf(" %v\n", err)
 	}
 
-	return nil
-}
-
-func extractVersionFromFilename(filename string) string {
-	parts := strings.Split(filepath.Base(filename), "-")
-	if len(parts) >= 2 {
-		return parts[1]
+	err = os.Remove(State.VersionsDir + "/Versions")
+	if err != nil {
+		fmt.Printf(" %v\n", err)
 	}
-	return "unknown"
+
+	return nil
 }
 
 func FetchGitHubTags() ([]string, error) {
