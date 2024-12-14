@@ -12,10 +12,7 @@ func CreateMainUI(w fyne.Window) fyne.CanvasObject {
 
 	vBox := container.New(layout.NewVBoxLayout())
 
-	vBox.Add(createGameImage())
-	vBox.Add(createMainTabs())
-	vBox.Add(createGameStarterButton(w))
-	vBox.Add(createVersionControlButton(w))
+	vBox.Add(CreateMainContent(w))
 
 	return vBox
 }

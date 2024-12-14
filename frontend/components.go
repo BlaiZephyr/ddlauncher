@@ -2,7 +2,11 @@ package frontend
 
 import (
 	"ddlauncher/backend"
-	"fmt"
+	dialog2 "fyne.io/fyne/v2/dialog"
+	"io"
+	"log"
+	"os"
+	"sync"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -12,11 +16,59 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func createMainTabs() fyne.CanvasObject {
+type ConsoleWriter struct {
+	entry *widget.Entry
+	mu    sync.Mutex
+}
+
+func (cw *ConsoleWriter) Write(p []byte) (n int, err error) {
+	cw.mu.Lock()
+	defer cw.mu.Unlock()
+
+	cw.entry.SetText(cw.entry.Text + string(p))
+
+	cw.entry.CursorRow = len(cw.entry.Text)
+
+	return len(p), nil
+}
+
+func CreateConsoleOutput() (*widget.Entry, *ConsoleWriter) {
+	consoleEntry := widget.NewMultiLineEntry()
+	consoleEntry.Disable() // Make it read-only
+	consoleEntry.SetMinRowsVisible(10)
+
+	consoleWriter := &ConsoleWriter{entry: consoleEntry}
+	return consoleEntry, consoleWriter
+}
+
+func RedirectStdoutAndStderr(consoleWriter *ConsoleWriter) {
+	oldStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	oldStderr := os.Stderr
+	errR, errW, _ := os.Pipe()
+	os.Stderr = errW
+
+	go func() {
+		io.Copy(consoleWriter, r)
+		r.Close()
+		os.Stdout = oldStdout
+	}()
+
+	go func() {
+		io.Copy(consoleWriter, errR)
+		errR.Close()
+		os.Stderr = oldStderr
+	}()
+}
+
+func createMainTabs(consoleOutput *widget.Entry) fyne.CanvasObject {
 	tabs := container.NewAppTabs(
 		container.NewTabItemWithIcon("Home", theme.HomeIcon(), widget.NewLabel("Home tab")),
 		container.NewTabItem("AntiBot", widget.NewLabel("AntiBot")),
 		container.NewTabItem("Translator", widget.NewLabel("Translator")),
+		container.NewTabItem("Console", consoleOutput),
 	)
 	return tabs
 }
@@ -25,20 +77,33 @@ func createGameStarterButton(w fyne.Window) *widget.Button {
 	return widget.NewButton(backend.GameTitle, func() {
 		err := backend.RunGameCommand()
 		if err != nil {
-			fmt.Println(err)
+			dialog := dialog2.NewError(err, w)
+			dialog.Show()
 		}
 	})
 }
 
 func createVersionControlButton(w fyne.Window) fyne.CanvasObject {
-	tags, err := backend.FetchGitHubTags()
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
+	versionSelect := widget.NewSelect([]string{"Loading..."}, nil)
+	versionSelect.Disable()
 
-	versionSelect := widget.NewSelect(tags, func(selected string) {
-		backend.State.CurrentVersion = selected
+	backend.FetchGitHubTagsAsync(func(tags []string, err error) {
+		if err != nil {
+			log.Println("Failed to fetch tags:", err)
+			versionSelect.SetOptions([]string{"Error fetching versions"})
+			return
+		}
+
+		if len(tags) > 0 && backend.State.CurrentVersion != tags[0] {
+			backend.State.CurrentVersion = tags[0]
+			versionSelect.SetSelected(tags[0]) // why doesnt this work >:c - TODO: fix defaulting to latest Version
+		}
+
+		versionSelect.SetOptions(tags)
+		versionSelect.Enable()
+		versionSelect.OnChanged = func(selected string) {
+			backend.State.CurrentVersion = selected
+		}
 	})
 
 	scrollContainer := container.NewVScroll(versionSelect)
@@ -54,4 +119,25 @@ func createGameImage() fyne.CanvasObject {
 	image.FillMode = canvas.ImageFillOriginal
 
 	return container.New(layout.NewGridLayout(1), image)
+}
+
+func CreateMainContent(w fyne.Window) fyne.CanvasObject {
+	consoleOutput, consoleWriter := CreateConsoleOutput()
+
+	RedirectStdoutAndStderr(consoleWriter)
+
+	mainTabs := createMainTabs(consoleOutput)
+
+	gameStarterButton := createGameStarterButton(w)
+	versionControlButton := createVersionControlButton(w)
+	gameImage := createGameImage()
+
+	content := container.NewVBox(
+		gameImage,
+		gameStarterButton,
+		versionControlButton,
+		mainTabs,
+	)
+
+	return content
 }

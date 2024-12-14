@@ -3,10 +3,13 @@ package backend
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 	"time"
 
@@ -119,27 +122,87 @@ func extractArchive(archivePath string) error {
 	return nil
 }
 
+func filterAndSortTags(tags []*github.RepositoryTag) []string {
+	var filteredTags []string
+
+	fullVersionRegex := regexp.MustCompile(`^(\d+\.\d+(?:\.\d+)?)$`)
+
+	for _, tag := range tags {
+		if tag.Name == nil {
+			continue
+		}
+		matches := fullVersionRegex.FindStringSubmatch(*tag.Name)
+		if len(matches) > 0 {
+			filteredTags = append(filteredTags, matches[1])
+		}
+	}
+
+	sort.Slice(filteredTags, func(i, j int) bool {
+		return compareVersions(filteredTags[i], filteredTags[j])
+	})
+
+	return filteredTags
+}
+
+func compareVersions(v1, v2 string) bool {
+	parts1 := strings.Split(v1, ".")
+	parts2 := strings.Split(v2, ".")
+
+	maxLen := len(parts1)
+	if len(parts2) > maxLen {
+		maxLen = len(parts2)
+	}
+
+	for i := 0; i < maxLen; i++ {
+		num1 := 0
+		num2 := 0
+
+		if i < len(parts1) {
+			fmt.Sscanf(parts1[i], "%d", &num1)
+		}
+		if i < len(parts2) {
+			fmt.Sscanf(parts2[i], "%d", &num2)
+		}
+
+		if num1 > num2 {
+			return true
+		} else if num1 < num2 {
+			return false
+		}
+	}
+
+	return len(parts1) > len(parts2)
+}
+
+// TODO: this still blocks main loop.
+func FetchGitHubTagsAsync(callback func([]string, error)) {
+	go func() {
+		tags, err := FetchGitHubTags()
+		callback(tags, err)
+	}()
+}
+
 func FetchGitHubTags() ([]string, error) {
 	ctx := context.Background()
 	client := github.NewClient(nil)
 
 	opts := &github.ListOptions{
 		Page:    1,
-		PerPage: 50,
+		PerPage: 100,
 	}
 
 	tags, resp, err := client.Repositories.ListTags(ctx, "ddnet", "ddnet", opts)
 	if err != nil {
-		fmt.Printf("Response Status: %v\n", resp.Status)
+		log.Printf("GitHub API Response Status: %v\n", resp.Status)
 		return nil, err
 	}
 
-	var filteredTags []string
+	filteredTags := filterAndSortTags(tags)
 
-	for _, tag := range tags {
-		if tag.Name != nil && strings.HasPrefix(*tag.Name, "1") {
-			filteredTags = append(filteredTags, *tag.Name)
-		}
+	log.Printf("Filtered Tags: %v\n", filteredTags)
+
+	if len(filteredTags) == 0 {
+		return nil, fmt.Errorf("no full version tags found")
 	}
 
 	return filteredTags, nil
