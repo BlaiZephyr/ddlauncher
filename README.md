@@ -9,9 +9,9 @@ A Go-based application for managing DDNet clients, allowing users to download, l
 - [x] **Version selection** - Users can select the version of DDNet they wish to download.
 - [x] **Client Downloading** - The application handles downloading the selected DDNet client version.
 - [x] **Client launching** - The downloaded DDNet client can be launched directly from the application.
+- [x] **Strip away release candidates from GitHub tags** - Clean up version tags to remove release candidates.
 
 ### Pending Features
-- [ ] **Strip away release candidates from GitHub tags** - Clean up version tags to remove release candidates.
-- [ ] **Improve UI layout** - Make the version list fit within the screen without overwhelming the user.
+- [ ] **Improve UI layout** - Make the version list fit within the screen.
 - [ ] **Antibot integration** - (This is a joke, but still) Provide some sort of moderation integration, ideally for all types of servers.
 - [ ] **Translation GUI** - Add a translation interface, potentially integrating with Deepl for automatic translations
