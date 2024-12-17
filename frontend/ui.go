@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 )
 
-var DefaultWindowSize = fyne.NewSize(500, 500)
+var DefaultWindowSize = fyne.NewSize(1000, 1000)
 
 func CreateMainUI(w fyne.Window) fyne.CanvasObject {
 

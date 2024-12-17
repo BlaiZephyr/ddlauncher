@@ -2,11 +2,12 @@ package frontend
 
 import (
 	"ddlauncher/backend"
-	dialog2 "fyne.io/fyne/v2/dialog"
 	"io"
 	"log"
 	"os"
 	"sync"
+
+	dialog2 "fyne.io/fyne/v2/dialog"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -83,7 +84,7 @@ func createGameStarterButton(w fyne.Window) *widget.Button {
 	})
 }
 
-func createVersionControlButton(w fyne.Window) fyne.CanvasObject {
+func createVersionControlButton() fyne.CanvasObject {
 	versionSelect := widget.NewSelect([]string{"Loading..."}, nil)
 	versionSelect.Disable()
 
