@@ -130,7 +130,7 @@ func CreateMainContent(w fyne.Window) fyne.CanvasObject {
 	mainTabs := createMainTabs(consoleOutput)
 
 	gameStarterButton := createGameStarterButton(w)
-	versionControlButton := createVersionControlButton(w)
+	versionControlButton := createVersionControlButton()
 	gameImage := createGameImage()
 
 	content := container.NewVBox(

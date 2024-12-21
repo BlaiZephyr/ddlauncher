@@ -22,10 +22,15 @@
 
         devShells = {
           default = pkgs.mkShell {
-            packages = with pkgs; [
-              go
-              golangci-lint
-            ];
+            inherit (self.packages.${system}.default) nativeBuildInputs;
+
+            packages =
+              with pkgs;
+              [
+                go
+                golangci-lint
+              ]
+              ++ self.packages.${system}.default.buildInputs;
           };
         };
       }

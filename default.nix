@@ -23,7 +23,7 @@ buildGoModule {
     libGL
   ];
 
-  vendorHash = "sha256-iK9JMDkRGGqKeUSoiQqwFDqOrUaGlpWQdIQg888vJ4g=";
+  vendorHash = "sha256-AdXuZEDLScR/ItDRfKggcsHHsmUtDQA5PWbcCOZ6fgg=";
 
   meta = {
     description = "DDNet Client Manager";
