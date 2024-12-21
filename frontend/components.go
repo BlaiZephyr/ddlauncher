@@ -95,13 +95,14 @@ func createVersionControlButton() fyne.CanvasObject {
 			return
 		}
 
-		if len(tags) > 0 && backend.State.CurrentVersion != tags[0] {
-			backend.State.CurrentVersion = tags[0]
-			versionSelect.SetSelected(tags[0]) // why doesnt this work >:c - TODO: fix defaulting to latest Version
-		}
-
 		versionSelect.SetOptions(tags)
 		versionSelect.Enable()
+
+		if len(tags) > 0 && backend.State.CurrentVersion != tags[0] {
+			backend.State.CurrentVersion = tags[0]
+			versionSelect.SetSelected(tags[0])
+		}
+
 		versionSelect.OnChanged = func(selected string) {
 			backend.State.CurrentVersion = selected
 		}

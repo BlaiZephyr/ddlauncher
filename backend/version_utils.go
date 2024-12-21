@@ -98,7 +98,6 @@ func extractArchive(archivePath string) error {
 	}
 
 	output, err := cmd.CombinedOutput()
-	fmt.Printf("Extraction output:\n%s\n", string(output))
 	if err != nil {
 		return fmt.Errorf("extraction failed: %v - output: %s", err, string(output))
 	}
