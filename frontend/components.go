@@ -44,16 +44,16 @@ func CreateConsoleOutput() (*widget.Entry, *ConsoleWriter) {
 
 func RedirectStdoutAndStderr(consoleWriter *ConsoleWriter) {
 	oldStdout := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
+	read, write, _ := os.Pipe()
+	os.Stdout = write
 
 	oldStderr := os.Stderr
 	errR, errW, _ := os.Pipe()
 	os.Stderr = errW
 
 	go func() {
-		io.Copy(consoleWriter, r)
-		r.Close()
+		io.Copy(consoleWriter, read)
+		read.Close()
 		os.Stdout = oldStdout
 	}()
 
@@ -67,8 +67,6 @@ func RedirectStdoutAndStderr(consoleWriter *ConsoleWriter) {
 func createMainTabs(consoleOutput *widget.Entry) fyne.CanvasObject {
 	tabs := container.NewAppTabs(
 		container.NewTabItemWithIcon("Home", theme.HomeIcon(), widget.NewLabel("Home tab")),
-		container.NewTabItem("AntiBot", widget.NewLabel("AntiBot")),
-		container.NewTabItem("Translator", widget.NewLabel("Translator")),
 		container.NewTabItem("Console", consoleOutput),
 	)
 	return tabs
