@@ -30,3 +30,8 @@ result
 
 Versions
 flake.lock
+
+# IDE project files
+.idea/
+.vs/
+.vscode/
